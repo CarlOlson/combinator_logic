@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'thread'
+require 'citrus'
+require 'optparse'
+require 'combinator_logic'
+
+OptionParser.new do |opts|
+
+  opts.on( "--timeout N", Float,
+           "Quit execution after N seconds." ) do |n|
+    Thread.new do
+      sleep n
+      puts "Timed out after #{n} seconds."
+      exit 1
+    end
+  end
+
+  opts.on( "--[no-]spans",
+           "Get span information for se-mode." ) do |s|
+    $spans = s
+  end
+  
+end.parse!
+
+if File.exist? ARGV.first
+  f = CombinatorLogic::CLFile.new ARGV.first
+  $spans ? (puts f.to_json) : f.value
+else
+  puts "File given doesn't exist!"
+end

@@ -1,0 +1,95 @@
+
+grammar CombinatorLogic::CL	
+
+  rule file
+    (ws* statements ws*) { capture(:statements).value }
+  end
+
+  rule statements
+    ( ( any (ws* comment)? "\n" ws* statements | any (ws* comment)? ) ) {
+      $ENV ||= Hash.new
+      $ENV.update CombinatorLogic::Helpers::CLTerms
+      captures(:any).map(&:value)
+      captures(:statements).map(&:value)
+    }
+  end
+
+  rule any
+    (string | comment | reducestar | valued)
+  end
+
+  rule valued
+    (assignment | print | reduce | expression)
+  end
+
+  rule comment
+    '--' [^\n]*
+  end
+
+  rule string
+    ('"' ('""' | [^"])* '"') { print to_str[1..-2] }
+  end
+
+  rule assignment
+    (name:[A-Z] ws* '=' ws* valued) {
+      $ENV[capture(:name).to_str] = capture(:valued).value
+    }
+  end
+
+  rule reduce
+    ("reduce" ws+ valued) {
+      term = capture(:valued).value
+      nil until term == (term = term.reduce)
+      term
+    }
+  end
+
+  rule reducestar
+    ("reduce*" ws+ valued) {
+      term = capture(:valued).value
+      terms = [ term ]
+      terms << term until term == (term = term.reduce)
+      terms
+    }
+  end
+
+  rule print
+    ("print" ws+ (reducestar | valued)) {
+      t = (capture(:reducestar) || capture(:valued)).value
+      puts t
+      t.respond_to?(:last) ? t.last : t
+    }
+  end
+
+  rule expression
+    (clterm+) {
+      CombinatorLogic::CLTerm.new *captures(:clterm).map(&:value) }
+  end
+
+  rule clterm
+    (parens | bound | variable)
+  end
+
+  rule bound
+    ([A-Z] "'"?) {
+      if $ENV.key? to_str
+        $ENV[to_str]
+      else
+        raise ArgumentError, "#{to_str} not assigned!"
+      end
+    }
+  end
+
+  rule parens
+    ('(' value:(assignment | expression) ')') { capture(:value).value }
+  end
+  
+  rule variable
+    ([a-z]) { CombinatorLogic::CLVar.new to_str }
+  end
+
+  rule ws
+    (' ' | "\t" | "\n")
+  end
+
+end
