@@ -8,6 +8,14 @@ require 'combinator_logic'
 
 OptionParser.new do |opts|
 
+  opts.banner = "Usage: cl [options] FILE"
+  
+  opts.on( "-e EXPR", "--eval EXPR",
+           "Evaluates given expression." ) do |e|
+    CombinatorLogic::CLFile.from_source(e).value
+    exit
+  end
+  
   opts.on( "--timeout N", Float,
            "Quit execution after N seconds." ) do |n|
     Thread.new do
