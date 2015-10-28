@@ -32,18 +32,28 @@ OptionParser.new do |opts|
   
 end.parse!
 
-if $evalme
-  stdout = $stdout
-  $stdout = StringIO.new
-  CombinatorLogic::CLFile.from_source($evalme).value
-  stdout.puts( $spans ?
-               { 'message' => $stdout.string }.to_json :
-               $stdout.string )
-elsif File.exist? ARGV.first
-  f = CombinatorLogic::CLFile.new ARGV.first
-  $spans ? (puts f.to_json) : f.value
-else
-  puts( $spans ?
-        {'error' => "File given doesn't exist!"}.to_json :
-        "File given doesn't exist!" )
+begin
+
+  if $evalme
+    stdout = $stdout
+    $stdout = StringIO.new
+    CombinatorLogic::CLFile.from_source($evalme).value
+    stdout.puts( $spans ?
+                 { 'message' => $stdout.string }.to_json :
+                 $stdout.string )
+  else
+    f = CombinatorLogic::CLFile.new ARGV.first
+    $spans ? (puts f.to_json) : f.value
+  end
+
+rescue => e
+
+  $stdout = stdout if defined? stdout
+  
+  if $spans
+    puts( {'error' => e.message}.to_json )
+  else
+    raise e
+  end
+  
 end
