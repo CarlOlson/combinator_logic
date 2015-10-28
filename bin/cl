@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'json'
 require 'thread'
 require 'citrus'
 require 'optparse'
@@ -27,5 +28,7 @@ if File.exist? ARGV.first
   f = CombinatorLogic::CLFile.new ARGV.first
   $spans ? (puts f.to_json) : f.value
 else
-  puts "File given doesn't exist!"
+  puts( $spans ?
+        {'error' => "File given doesn't exist!"}.to_json :
+        "File given doesn't exist!" )
 end

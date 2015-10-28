@@ -165,7 +165,7 @@ module CombinatorLogic
       if @error
         '{"error":' << @error.message.to_json << '}'
       else
-        '{"spans":[' << spans.join(',').to_json << ']}'
+        '{"spans":' << spans.to_json << '}'
       end
     end
 
@@ -175,16 +175,16 @@ module CombinatorLogic
     
     private
     def create_spans m
-      if not m.matches.size.zero?
-        if t = m.capture(:any)
+      [:any, :valued, :expression].each do |rule|
+        if t = m.capture(rule)
           rule = t.events.first.to_s
           if ['print', 'reduce', 'reducestar',
               'expression', 'assignment'].include? rule
             @spans << [rule, t.offset + 1, t.offset + 1 + t.length]
           end
         end
-        m.matches.each { |m| create_spans m }
       end
+      m.matches.each { |m| create_spans m }
     end
   end
   
