@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'stringio'
 require 'json'
 require 'thread'
 require 'citrus'
@@ -9,12 +10,6 @@ require 'combinator_logic'
 OptionParser.new do |opts|
 
   opts.banner = "Usage: cl [options] FILE"
-  
-  opts.on( "-e EXPR", "--eval EXPR",
-           "Evaluates given expression." ) do |e|
-    CombinatorLogic::CLFile.from_source(e).value
-    exit
-  end
   
   opts.on( "--timeout N", Float,
            "Quit execution after N seconds." ) do |n|
@@ -29,10 +24,22 @@ OptionParser.new do |opts|
            "Get span information for se-mode." ) do |s|
     $spans = s
   end
+
+  opts.on( "-e EXPR", "--eval EXPR",
+           "Evaluates given expression." ) do |e|
+    $evalme = e
+  end
   
 end.parse!
 
-if File.exist? ARGV.first
+if $evalme
+  stdout = $stdout
+  $stdout = StringIO.new
+  CombinatorLogic::CLFile.from_source($evalme).value
+  stdout.puts( $spans ?
+               { 'message' => $stdout.string }.to_json :
+               $stdout.string )
+elsif File.exist? ARGV.first
   f = CombinatorLogic::CLFile.new ARGV.first
   $spans ? (puts f.to_json) : f.value
 else
