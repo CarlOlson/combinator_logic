@@ -1,8 +1,10 @@
 # -*- mode: ruby -*-
 
+require File.expand_path("./lib/combinator_logic.rb")
+
 Gem::Specification.new do |s|
   s.name = "combinator_logic"
-  s.version = "0.2"
+  s.version = CombinatorLogic::VERSION.to_s
   s.date = "2015-10-28"
   s.summary = "Implements a SKI combinator language in ruby."
   s.authors = ["Carl Olson"]

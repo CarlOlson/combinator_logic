@@ -9,7 +9,12 @@ require 'combinator_logic'
 
 OptionParser.new do |opts|
 
-  opts.banner = "Usage: cl [options] FILE"
+  opts.banner = "Usage: clrb [options] FILE"
+
+  opts.on( "--version", "Prints version information" ) do
+    puts "Combinator Logic, clrb v#{CombinatorLogic::VERSION}"
+    exit
+  end
   
   opts.on( "--timeout N", Float,
            "Quit execution after N seconds." ) do |n|
