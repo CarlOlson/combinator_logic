@@ -11,5 +11,5 @@ Gem::Specification.new do |s|
 
   s.executables = ['clrb']
 
-  s.add_runtime_dependency 'citrus', '~>3.0.2'
+  s.add_runtime_dependency 'citrus', '~>3.0', '>=3.0.2'
 end
