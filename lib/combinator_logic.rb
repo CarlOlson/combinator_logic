@@ -4,7 +4,7 @@ require 'citrus'
 
 module CombinatorLogic
 
-  VERSION = '0.2'
+  VERSION = '0.3'
   
   dir = File.dirname File.expand_path __FILE__
   Citrus.load File.join dir, 'CL.citrus'
