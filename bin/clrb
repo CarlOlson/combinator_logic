@@ -13,11 +13,7 @@ OptionParser.new do |opts|
   
   opts.on( "--timeout N", Float,
            "Quit execution after N seconds." ) do |n|
-    Thread.new do
-      sleep n
-      puts "Timed out after #{n} seconds."
-      exit 1
-    end
+    $timeout = n
   end
 
   opts.on( "--[no-]spans",
@@ -33,14 +29,22 @@ OptionParser.new do |opts|
 end.parse!
 
 begin
+  $stdout_ = $stdout
 
+  if $timeout
+    Thread.new do
+      sleep $timeout
+      $stdout_.puts "Timed out after #$timeout seconds."
+      exit 1
+    end
+  end
+  
   if $evalme
-    stdout = $stdout
     $stdout = StringIO.new
     CombinatorLogic::CLFile.from_source($evalme).value
-    stdout.puts( $spans ?
-                 { 'message' => $stdout.string }.to_json :
-                 $stdout.string )
+    $stdout_.puts( $spans ?
+                     { 'message' => $stdout.string }.to_json :
+                     $stdout.string )
   else
     f = CombinatorLogic::CLFile.new ARGV.first
     $spans ? (puts f.to_json) : f.value
@@ -48,7 +52,7 @@ begin
 
 rescue => e
 
-  $stdout = stdout if defined? stdout
+  $stdout = $stdout_
   
   if $spans
     puts( {'error' => e.message}.to_json )
