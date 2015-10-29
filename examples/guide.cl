@@ -23,4 +23,4 @@ print reduce Fxy
 "
 print reduce* Fxy
 
--- check out the command line options with "ruby cl.rb --help"
+-- check out the command line options with "clrb --help"

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/*"]
   s.require_path = 'lib'
 
-  s.executables = ['cl']
+  s.executables = ['clrb']
 
   s.add_runtime_dependency 'citrus', '~>3.0.2'
 end
